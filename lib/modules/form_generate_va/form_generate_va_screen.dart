@@ -76,7 +76,7 @@ class _FormGenerateVaScreenState extends ConsumerState<FormGenerateVaScreen> {
                   final result = await context.pushNamed(AppRoute.paymentCodeRoute);
                   if (result is Map) {
                     paymentData = result;
-                    va = "$defaultPrefixVATeknik${paymentData!['kode']}${(_userModel?.nim?.length ?? 0) > 4 ? _userModel?.nim?.substring(4) : _userModel?.nim}";
+                    va = "$defaultPrefixVATeknik${paymentData!['kode']}${(_userModel?.nim?.length ?? 0) > 4 ? "${_userModel?.nim?.substring(2, 4)}${_userModel?.nim?.substring(6)}" : _userModel?.nim}";
                     setState(() {});
                   }
                 },

@@ -222,7 +222,7 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          final res = await context.push(AppRoute.formGenerateVaRoute);
+          final res = await context.pushNamed(AppRoute.formGenerateVaRoute);
           if (res != null && context.mounted) {
             showSuccessFlushbar(context, "Yeayy!", "berhasil membuat nomor pembayaran baru!");
             return ref.refresh(providerFetchAllVAHistory);
