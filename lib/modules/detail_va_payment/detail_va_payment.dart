@@ -13,6 +13,7 @@ import '../../utils/custom_exception.dart';
 import '../../view/components/error_display_component.dart';
 import '../../view/components/key_value_component.dart';
 import '../../view/components/loading_display_component.dart';
+import '../home/home_screen.dart';
 
 final providerFetchVAHistoryByID =
 FutureProvider.autoDispose.family<Map, String>((ref, id) async {
@@ -58,7 +59,8 @@ class _DetailVaPaymentState extends ConsumerState<DetailVaPayment> {
     }
     if (mounted) LoadingDialog.hideLoadingDialog(context);
     if (errorMessage == null && mounted) {
-      context.pop("Berhasil menghapus nomor VA");
+      ref.refresh(providerFetchAllVAHistory);
+      context.goNamed("/", extra: "Berhasil menghapus nomor VA");
     } else {
       showErrorFlushbar(context, "Oops!", errorMessage ?? "");
     }
@@ -113,69 +115,76 @@ class _DetailVaPaymentState extends ConsumerState<DetailVaPayment> {
           ),
         ],
       ),
-      body: asyncFetchDetail.when(
-        data: (data) {
-          return RefreshIndicator(
-            onRefresh: () async => ref.refresh(providerFetchVAHistoryByID(widget.idVa)),
-            child: ListView(
-              padding: const EdgeInsets.all(16.0),
-              children: [
-                KeyValueComponent(
-                  keyString: "VA",
-                  value: "${data['va']}",
-                  noMargin: true,
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(
+            maxWidth: 400,
+          ),
+          child: asyncFetchDetail.when(
+            data: (data) {
+              return RefreshIndicator(
+                onRefresh: () async => ref.refresh(providerFetchVAHistoryByID(widget.idVa)),
+                child: ListView(
+                  padding: const EdgeInsets.all(16.0),
+                  children: [
+                    KeyValueComponent(
+                      keyString: "VA",
+                      value: "${data['va']}",
+                      noMargin: true,
+                    ),
+                    const Divider(),
+                    KeyValueComponent(
+                      keyString: "Kategori",
+                      value: "${data['payment_category']}",
+                      noMargin: true,
+                    ),
+                    const Divider(),
+                    KeyValueComponent(
+                      keyString: "Nominal",
+                      value: rupiahNumberFormatter("${data['nominal']}"),
+                      noMargin: true,
+                    ),
+                    const Divider(),
+                    KeyValueComponent(
+                      keyString: "Due Date",
+                      value: dateFormat("${data['expired_date']}"),
+                      noMargin: true,
+                    ),
+                    const Divider(),
+                    KeyValueComponent(
+                      keyString: "Status",
+                      value: "${data['status'] ?? ''}".isEmpty ? "UNDONE" : data['status'],
+                      noMargin: true,
+                    ),
+                    const Divider(),
+                    KeyValueComponent(
+                      keyString: "Created At",
+                      value: dateFormat("${data['created_at']}"),
+                      noMargin: true,
+                    ),
+                    const Divider(),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        final clipboardData = ClipboardData(text: "${data['va']}");
+                        Clipboard.setData(clipboardData);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('No. VA copied to clipboard')),
+                        );
+                      },
+                      icon: const Icon(Icons.copy),
+                      label: const Text("Salin no. VA"),
+                    ),
+                  ],
                 ),
-                const Divider(),
-                KeyValueComponent(
-                  keyString: "Kategori",
-                  value: "${data['payment_category']}",
-                  noMargin: true,
-                ),
-                const Divider(),
-                KeyValueComponent(
-                  keyString: "Nominal",
-                  value: rupiahNumberFormatter("${data['nominal']}"),
-                  noMargin: true,
-                ),
-                const Divider(),
-                KeyValueComponent(
-                  keyString: "Due Date",
-                  value: dateFormat("${data['expired_date']}"),
-                  noMargin: true,
-                ),
-                const Divider(),
-                KeyValueComponent(
-                  keyString: "Status",
-                  value: "${data['status'] ?? ''}".isEmpty ? "UNDONE" : data['status'],
-                  noMargin: true,
-                ),
-                const Divider(),
-                KeyValueComponent(
-                  keyString: "Created At",
-                  value: dateFormat("${data['created_at']}"),
-                  noMargin: true,
-                ),
-                const Divider(),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    final clipboardData = ClipboardData(text: "${data['va']}");
-                    Clipboard.setData(clipboardData);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No. VA copied to clipboard')),
-                    );
-                  },
-                  icon: const Icon(Icons.copy),
-                  label: const Text("Salin no. VA"),
-                ),
-              ],
+              );
+            },
+            error: (error, st) => ErrorDisplayComponent(
+              onPressed: () => ref.refresh(providerFetchVAHistoryByID(widget.idVa)),
+              errorMsg: "$error",
             ),
-          );
-        },
-        error: (error, st) => ErrorDisplayComponent(
-          onPressed: () => ref.refresh(providerFetchVAHistoryByID(widget.idVa)),
-          errorMsg: "$error",
+            loading: () => const LoadingDisplayComponent(),
+          ),
         ),
-        loading: () => const LoadingDisplayComponent(),
       ),
     );
   }

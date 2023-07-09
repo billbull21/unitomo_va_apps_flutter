@@ -10,6 +10,9 @@ class LoadingDialog {
           onWillPop: () async => false, // Prevent dialog from being dismissed on back button press
           child: Dialog(
             child: Container(
+              constraints: const BoxConstraints(
+                maxWidth: 400,
+              ),
               margin: const EdgeInsets.all(16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

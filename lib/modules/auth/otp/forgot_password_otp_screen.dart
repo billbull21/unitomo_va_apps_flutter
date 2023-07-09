@@ -45,7 +45,7 @@ class _ForgotPasswordOtpScreenState extends State<ForgotPasswordOtpScreen> {
       try {
         final otp = _otpValues.join("");
         context.goNamed(AppRoute.resetPassword,
-          queryParameters: {
+          pathParameters: {
             'email': widget.email,
             'otp': otp,
           }

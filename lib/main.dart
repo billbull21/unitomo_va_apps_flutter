@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:unitomo_va_payment/routing.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 import 'environtment.dart';
 
@@ -13,7 +14,7 @@ void main() async {
   //     statusBarColor: Colors.transparent,
   //   ),
   // );
-
+  setPathUrlStrategy();
   await Hive.initFlutter();
   await Hive.openBox(boxName);
   await initializeDateFormatting('id', null);

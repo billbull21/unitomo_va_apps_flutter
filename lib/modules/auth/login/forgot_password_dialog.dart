@@ -50,8 +50,8 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
     }
     if (mounted) LoadingDialog.hideLoadingDialog(context);
     if (errorMessage == null && mounted) {
-      context.pushNamed(AppRoute.forgotPasswordOtpRoute,
-        queryParameters: {
+      context.goNamed(AppRoute.forgotPasswordOtpRoute,
+        pathParameters: {
           'email': _emailController.text,
         },
       );

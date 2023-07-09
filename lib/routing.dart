@@ -19,9 +19,9 @@ class AppRoute {
   static const registerOtpRoute = "/register-otp";
   static const forgotPasswordOtpRoute = "/forgot-password-otp";
   static const resetPassword = "/reset-password";
-  static const formGenerateVaRoute = "/form-generate-va";
   static const paymentCodeRoute = "/payment-code";
-  static const detailVaRoute = "/detail-va";
+  static const formGenerateVaRoute = "create-va";
+  static const detailVaRoute = "detail-va";
 
 }
 
@@ -30,7 +30,25 @@ final router = GoRouter(
     GoRoute(
       path: "/",
       name: "/",
-      builder: (context, state) => const HomeScreen(),
+      builder: (context, state) {
+        return HomeScreen(
+          messageExtra: state.extra is String ? state.extra.toString() : null,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: AppRoute.formGenerateVaRoute,
+          name: AppRoute.formGenerateVaRoute,
+          builder: (context, state) => const FormGenerateVaScreen(),
+        ),
+        GoRoute(
+          path: "${AppRoute.detailVaRoute}/:id",
+          name: AppRoute.detailVaRoute,
+          builder: (context, state) => DetailVaPayment(
+            idVa: state.pathParameters['id'] ?? '',
+          ),
+        ),
+      ],
       redirect: (ctx, state) async {
         if (!Hive.isBoxOpen(boxName)) await Hive.openBox(boxName);
         final box = Hive.box(boxName);
@@ -54,16 +72,11 @@ final router = GoRouter(
       builder: (context, state) => const RegisterOtpScreen(),
     ),
     GoRoute(
-      path: AppRoute.forgotPasswordOtpRoute,
+      path: "${AppRoute.forgotPasswordOtpRoute}/:email",
       name: AppRoute.forgotPasswordOtpRoute,
       builder: (context, state) => ForgotPasswordOtpScreen(
-        email: state.queryParameters['email'] ?? '',
+        email: state.pathParameters['email'] ?? '',
       ),
-    ),
-    GoRoute(
-      path: AppRoute.formGenerateVaRoute,
-      name: AppRoute.formGenerateVaRoute,
-      builder: (context, state) => const FormGenerateVaScreen(),
     ),
     GoRoute(
       path: AppRoute.paymentCodeRoute,
@@ -71,18 +84,11 @@ final router = GoRouter(
       builder: (context, state) => const PaymentCodeScreen(),
     ),
     GoRoute(
-      path: AppRoute.resetPassword,
+      path: "${AppRoute.resetPassword}/:email/:otp",
       name: AppRoute.resetPassword,
       builder: (context, state) => ResetPasswordScreen(
-        email: state.queryParameters['email'] ?? '',
-        otp: state.queryParameters['otp'] ?? '',
-      ),
-    ),
-    GoRoute(
-      path: AppRoute.detailVaRoute,
-      name: AppRoute.detailVaRoute,
-      builder: (context, state) => DetailVaPayment(
-        idVa: state.queryParameters['id'] ?? '',
+        email: state.pathParameters['email'] ?? '',
+        otp: state.pathParameters['otp'] ?? '',
       ),
     ),
   ],

@@ -12,6 +12,7 @@ import 'package:unitomo_va_payment/routing.dart';
 import 'package:unitomo_va_payment/utils/custom_exception.dart';
 
 import '../../view/components/key_value_component.dart';
+import '../home/home_screen.dart';
 
 class FormGenerateVaScreen extends ConsumerStatefulWidget {
   const FormGenerateVaScreen({Key? key}) : super(key: key);
@@ -43,6 +44,7 @@ class _FormGenerateVaScreenState extends ConsumerState<FormGenerateVaScreen> {
         "va": va,
         "payment_category": paymentData!['deskripsi'],
         "nominal": paymentData!['nominal'],
+        "parsial": paymentData!['cicilan'],
       };
       await ApiProvider().saveVA(dataVA);
     } on CustomException catch (e) {
@@ -53,7 +55,10 @@ class _FormGenerateVaScreenState extends ConsumerState<FormGenerateVaScreen> {
     }
     if (mounted) LoadingDialog.hideLoadingDialog(context);
     if (errorMessage == null && mounted) {
-      context.pop(1);
+      ref.refresh(providerFetchAllVAHistory);
+      context.goNamed("/",
+        extra: "berhasil membuat nomor pembayaran baru!",
+      );
     } else {
       showErrorFlushbar(context, "Oops!", errorMessage ?? "");
     }

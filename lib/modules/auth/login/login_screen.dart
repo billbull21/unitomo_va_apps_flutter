@@ -129,94 +129,104 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFieldComponent(
-                controller: _nimController,
-                label: 'NIM',
-                hint: 'masukkan nim anda',
-                error: _isErrorMode && _nimController.text.isEmpty ? 'Mohon masukkan NIM Anda' : '',
-              ),
-              const SizedBox(height: 16.0),
-              TextFieldComponent(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                label: 'Password',
-                hint: 'masukkan password anda',
-                error: _isErrorMode && _passwordController.text.isEmpty ? 'Mohon masukkan Password Anda' : '',
-                suffixWidget: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
+          child: Container(
+            constraints: const BoxConstraints(
+              maxWidth: 400,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFieldComponent(
+                  controller: _nimController,
+                  label: 'NIM',
+                  hint: 'masukkan nim anda',
+                  error: _isErrorMode && _nimController.text.isEmpty ? 'Mohon masukkan NIM Anda' : '',
+                ),
+                const SizedBox(height: 16.0),
+                TextFieldComponent(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  label: 'Password',
+                  hint: 'masukkan password anda',
+                  error: _isErrorMode && _passwordController.text.isEmpty ? 'Mohon masukkan Password Anda' : '',
+                  suffixWidget: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                    icon: Text(_obscurePassword ? "Show" : "Hide",
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24.0),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _login,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    minimumSize: const Size(double.infinity, 55),
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: _isLoading
+                      ? Container(
+                          width: 24,
+                          height: 24,
+                          padding: const EdgeInsets.all(2.0),
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ))
+                      : const Text("MASUK"),
+                ),
+                const SizedBox(height: 24),
+                GestureDetector(
+                  onTap: () {
+                    // forgot password dialog
+                    // create dialog to show email
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          backgroundColor: Colors.white,
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              maxWidth: 400,
+                            ),
+                            child: const ForgotPasswordDialog(),
+                          ),
+                        );
+                      },
+                    );
                   },
-                  icon: Text(_obscurePassword ? "Show" : "Hide",
+                  child: Text("Lupa Password?",
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () => context.go(AppRoute.registerRoute),
+                  child: Text("Belum punya akun? Daftar disini",
                     style: textTheme.bodyLarge?.copyWith(
                       color: Colors.blue,
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24.0),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _login,
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  minimumSize: const Size(double.infinity, 55),
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                ),
-                child: _isLoading
-                    ? Container(
-                        width: 24,
-                        height: 24,
-                        padding: const EdgeInsets.all(2.0),
-                        child: const CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
-                        ))
-                    : const Text("MASUK"),
-              ),
-              const SizedBox(height: 24),
-              GestureDetector(
-                onTap: () {
-                  // forgot password dialog
-                  // create dialog to show email
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return Dialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        backgroundColor: Colors.white,
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: const ForgotPasswordDialog(),
-                      );
-                    },
-                  );
-                },
-                child: Text("Lupa Password?",
-                  style: textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () => context.go(AppRoute.registerRoute),
-                child: Text("Belum punya akun? Daftar disini",
-                  style: textTheme.bodyLarge?.copyWith(
-                    color: Colors.blue,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

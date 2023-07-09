@@ -64,12 +64,23 @@ final providerFetchAllVAHistory =
 });
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+
+  final String? messageExtra;
+
+  const HomeScreen({Key? key, this.messageExtra}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // refresh || because using .pop() result is not working while you use .go method
+      if (messageExtra != null) {
+        showSuccessFlushbar(context, "Yeayy!", messageExtra!);
+      }
+    });
+
     final textTheme = Theme.of(context).textTheme;
     final asyncFetchUser = ref.watch(providerCheckUserStatus);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -78,155 +89,149 @@ class HomeScreen extends ConsumerWidget {
               width: 35,
               height: 35,
             ),
-            const Spacer(
-              flex: 3,
-            ),
-            Text("FAKULTAS TEKNIK",
-              style: textTheme.titleMedium?.copyWith(
-                height: 1.2,
+            Expanded(
+              child: Text("FAKULTAS TEKNIK",
+                style: textTheme.titleMedium?.copyWith(
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
-            const Spacer(
-              flex: 2,
+            IconButton(
+              onPressed: () async {
+                if (!Hive.isBoxOpen(boxName)) await Hive.openBox(boxName);
+                final box = Hive.box(boxName);
+                box.delete(apiKeyPref);
+                if (context.mounted) context.go('/login');
+              },
+              icon: const Icon(Icons.logout),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              if (!Hive.isBoxOpen(boxName)) await Hive.openBox(boxName);
-              final box = Hive.box(boxName);
-              box.delete(apiKeyPref);
-              if (context.mounted) context.go('/login');
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
       ),
-      body: asyncFetchUser.when(
-        data: (dataUser) {
-          final asyncFetchAllVAHistory = ref.watch(providerFetchAllVAHistory);
-          return Column(
-            children: [
-              Card(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                color: Colors.yellow,
-                elevation: 5,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Hi, ${dataUser?.nama}",
-                              style: textTheme.headlineMedium,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text("${dataUser?.prodi}",
-                              style: textTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton.outlined(
-                        onPressed: () {},
-                        color: Colors.blue,
-                        tooltip: "Profile",
-                        icon: const Icon(Icons.account_circle),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: asyncFetchAllVAHistory.when(
-                  data: (data) {
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        return ref.refresh(providerFetchAllVAHistory);
-                      },
-                      child: Stack(
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(
+            maxWidth: 400,
+          ),
+          child: asyncFetchUser.when(
+            data: (dataUser) {
+              final asyncFetchAllVAHistory = ref.watch(providerFetchAllVAHistory);
+              return Column(
+                children: [
+                  Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    color: Colors.yellow,
+                    elevation: 5,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8),
+                      child: Row(
                         children: [
-                          if (data.isEmpty) const EmptyListComponent(),
-                          Positioned.fill(
-                            child: ListView.builder(
-                              padding: const EdgeInsets.all(16.0),
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              itemCount: data.length,
-                              itemBuilder: (ctx, i) {
-                                return Card(
-                                  child: InkWell(
-                                    onTap: () async {
-                                      final resultMessage = await context.pushNamed(AppRoute.detailVaRoute,
-                                        queryParameters: {
-                                          'id': data[i]['id'],
-                                        }
-                                      );
-                                      if (resultMessage is String && context.mounted) {
-                                        showSuccessFlushbar(context, "Yeayy!", resultMessage);
-                                        return ref.refresh(providerFetchAllVAHistory);
-                                      }
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        children: [
-                                          KeyValueComponent(
-                                            keyString: "VA",
-                                            value: "${data[i]['va']}",
-                                          ),
-                                          KeyValueComponent(
-                                            keyString: "Kategori",
-                                            value: "${data[i]['payment_category']}",
-                                          ),
-                                          KeyValueComponent(
-                                            keyString: "Nominal",
-                                            value: rupiahNumberFormatter("${data[i]['nominal']}"),
-                                            noMargin: true,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Hi, ${dataUser?.nama}",
+                                  style: textTheme.headlineMedium,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text("${dataUser?.prodi}",
+                                  style: textTheme.bodyMedium,
+                                ),
+                              ],
                             ),
                           ),
+                          IconButton.outlined(
+                            onPressed: () {},
+                            color: Colors.blue,
+                            tooltip: "Profile",
+                            icon: const Icon(Icons.account_circle),
+                          )
                         ],
                       ),
-                    );
-                  },
-                  error: (error, st) => ErrorDisplayComponent(
-                    onPressed: () => ref.refresh(providerFetchAllVAHistory),
-                    errorMsg: "$error",
+                    ),
                   ),
-                  loading: () => const LoadingDisplayComponent(),
-                ),
-              ),
-            ],
-          );
-        },
-        error: (error, st) => ErrorDisplayComponent(
-          onPressed: () => ref.refresh(providerCheckUserStatus),
-          errorMsg: "$error",
+                  Expanded(
+                    child: asyncFetchAllVAHistory.when(
+                      data: (data) {
+                        return RefreshIndicator(
+                          onRefresh: () async {
+                            return ref.refresh(providerFetchAllVAHistory);
+                          },
+                          child: Stack(
+                            children: [
+                              if (data.isEmpty) const EmptyListComponent(),
+                              Positioned.fill(
+                                child: ListView.builder(
+                                  padding: const EdgeInsets.all(16.0),
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  itemCount: data.length,
+                                  itemBuilder: (ctx, i) {
+                                    return Card(
+                                      child: InkWell(
+                                        onTap: () async {
+                                          context.goNamed(AppRoute.detailVaRoute,
+                                            pathParameters: {
+                                              'id': data[i]['id'],
+                                            },
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            children: [
+                                              KeyValueComponent(
+                                                keyString: "VA",
+                                                value: "${data[i]['va']}",
+                                              ),
+                                              KeyValueComponent(
+                                                keyString: "Kategori",
+                                                value: "${data[i]['payment_category']}",
+                                              ),
+                                              KeyValueComponent(
+                                                keyString: "Nominal",
+                                                value: rupiahNumberFormatter("${data[i]['nominal']}"),
+                                                noMargin: true,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      error: (error, st) => ErrorDisplayComponent(
+                        onPressed: () => ref.refresh(providerFetchAllVAHistory),
+                        errorMsg: "$error",
+                      ),
+                      loading: () => const LoadingDisplayComponent(),
+                    ),
+                  ),
+                ],
+              );
+            },
+            error: (error, st) => ErrorDisplayComponent(
+              onPressed: () => ref.refresh(providerCheckUserStatus),
+              errorMsg: "$error",
+            ),
+            loading: () => const LoadingDisplayComponent(),
+          ),
         ),
-        loading: () => const LoadingDisplayComponent(),
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          final res = await context.pushNamed(AppRoute.formGenerateVaRoute);
-          if (res != null && context.mounted) {
-            showSuccessFlushbar(context, "Yeayy!", "berhasil membuat nomor pembayaran baru!");
-            return ref.refresh(providerFetchAllVAHistory);
-          }
+          context.goNamed(AppRoute.formGenerateVaRoute);
         },
       ),
     );

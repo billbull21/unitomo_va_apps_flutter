@@ -169,130 +169,137 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          TextFieldComponent(
-            controller: _nimController,
-            label: 'NIM',
-            hint: "masukkan NIM Anda",
-            error: _isErrorMode ? validator('nim') : '',
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(
+            maxWidth: 400,
           ),
-          const SizedBox(height: 16.0),
-          TextFieldComponent(
-            controller: _nameController,
-            label: 'Nama',
-            hint: "masukkan nama Anda",
-            error: _isErrorMode ? validator('name') : '',
-          ),
-          const SizedBox(height: 16.0),
-          Consumer(
-            builder: (ctx, ref2, _) {
-              final asyncFetchAllProdi = ref2.watch(providerFetchAllProdi);
-              return OutlinedDropdownComponent(
-                label: "Prodi",
-                hint: 'silahkan pilih prodi anda',
-                keyName: 'namaprodi',
-                selectedData: selectedProdi,
-                enabled: (asyncFetchAllProdi.asData?.value ?? []).isNotEmpty,
-                onWidgetTap: () {
-                  // request if the list still empty
-                  if ((asyncFetchAllProdi.asData?.value ?? []).isEmpty) {
-                    return ref2.refresh(providerFetchAllProdi);
-                  }
-                },
-                dataList: asyncFetchAllProdi.asData?.value ?? [],
-                error: _isErrorMode ? validator('prodi') : '',
-                onSelected: (value) {
-                  setState(() {
-                    selectedProdi = value;
-                  });
-                },
-              );
-            },
-          ),
-          const SizedBox(height: 16.0),
-          TextFieldComponent(
-            controller: _phoneNumberController,
-            hint: "masukkan nomor hp Anda",
-            label: 'No. HP',
-          ),
-          const SizedBox(height: 16.0),
-          TextFieldComponent(
-            controller: _emailController,
-            label: 'Email',
-            hint: "masukkan email Anda",
-            error: _isErrorMode ? validator('email') : '',
-          ),
-          const SizedBox(height: 16.0),
-          TextFieldComponent(
-            controller: _passwordController,
-            obscureText: _obscurePassword,
-            label: 'Password',
-            hint: 'masukkan password Anda',
-            error: _isErrorMode ? validator('password') : '',
-            suffixWidget: IconButton(
-              onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
-              icon: Text(_obscurePassword ? "Show" : "Hide",
-                style: textTheme.bodyLarge?.copyWith(
-                  color: Colors.blue,
-                ),
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              TextFieldComponent(
+                controller: _nimController,
+                label: 'NIM',
+                hint: "masukkan NIM Anda",
+                error: _isErrorMode ? validator('nim') : '',
               ),
-            ),
-          ),
-          const SizedBox(height: 24.0),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _register,
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+              const SizedBox(height: 16.0),
+              TextFieldComponent(
+                controller: _nameController,
+                label: 'Nama',
+                hint: "masukkan nama Anda",
+                error: _isErrorMode ? validator('name') : '',
               ),
-              minimumSize: const Size(double.infinity, 55),
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-            ),
-            child: _isLoading ? Container(
-                width: 24,
-                height: 24,
-                padding: const EdgeInsets.all(2.0),
-                child: const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 3,
-                )
-            ) : const Text("Daftar"),
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          Center(
-            child: RichText(
-              text: TextSpan(
-                text: "Sudah punya akun? ",
-                children: [
-                  WidgetSpan(
-                    child: GestureDetector(
-                      onTap: () => context.go(AppRoute.loginRoute),
-                      child: Text('Masuk',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: Colors.blue,
-                          height: 1.2,
-                        ),
-                      ),
+              const SizedBox(height: 16.0),
+              Consumer(
+                builder: (ctx, ref2, _) {
+                  final asyncFetchAllProdi = ref2.watch(providerFetchAllProdi);
+                  return OutlinedDropdownComponent(
+                    label: "Prodi",
+                    hint: 'silahkan pilih prodi anda',
+                    keyName: 'namaprodi',
+                    selectedData: selectedProdi,
+                    enabled: (asyncFetchAllProdi.asData?.value ?? []).isNotEmpty,
+                    onWidgetTap: () {
+                      // request if the list still empty
+                      if ((asyncFetchAllProdi.asData?.value ?? []).isEmpty) {
+                        return ref2.refresh(providerFetchAllProdi);
+                      }
+                    },
+                    dataList: asyncFetchAllProdi.asData?.value ?? [],
+                    error: _isErrorMode ? validator('prodi') : '',
+                    onSelected: (value) {
+                      setState(() {
+                        selectedProdi = value;
+                      });
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 16.0),
+              TextFieldComponent(
+                controller: _phoneNumberController,
+                hint: "masukkan nomor hp Anda",
+                label: 'No. HP',
+              ),
+              const SizedBox(height: 16.0),
+              TextFieldComponent(
+                controller: _emailController,
+                label: 'Email',
+                hint: "masukkan email Anda",
+                error: _isErrorMode ? validator('email') : '',
+              ),
+              const SizedBox(height: 16.0),
+              TextFieldComponent(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                label: 'Password',
+                hint: 'masukkan password Anda',
+                error: _isErrorMode ? validator('password') : '',
+                suffixWidget: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                  icon: Text(_obscurePassword ? "Show" : "Hide",
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: Colors.blue,
                     ),
                   ),
-                ],
-                style: textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade600,
                 ),
               ),
-              textAlign: TextAlign.center,
-            ),
+              const SizedBox(height: 24.0),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _register,
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  minimumSize: const Size(double.infinity, 55),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: _isLoading ? Container(
+                    width: 24,
+                    height: 24,
+                    padding: const EdgeInsets.all(2.0),
+                    child: const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 3,
+                    )
+                ) : const Text("Daftar"),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              Center(
+                child: RichText(
+                  text: TextSpan(
+                    text: "Sudah punya akun? ",
+                    children: [
+                      WidgetSpan(
+                        child: GestureDetector(
+                          onTap: () => context.go(AppRoute.loginRoute),
+                          child: Text('Masuk',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: Colors.blue,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
