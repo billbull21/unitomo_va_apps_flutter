@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -65,7 +63,7 @@ class ApiProvider {
         responseHeader: true,
         request: true,
         requestBody: true,
-        logPrint: (obj) => log("$obj"),
+        logPrint: (obj) => debugPrint("$obj"),
       ));
     }
 
@@ -92,6 +90,19 @@ class ApiProvider {
   Future doRegister(Map data) async {
     try {
       final response = await _dio.post(
+        "/user",
+        // data: jsonDecode(jsonEncode(data)),
+        data: data,
+      );
+      return response.data;
+    } catch (e) {
+      throw CustomException.catchError(e);
+    }
+  }
+
+  Future updateProfile(Map data) async {
+    try {
+      final response = await _dio.put(
         "/user",
         // data: jsonDecode(jsonEncode(data)),
         data: data,
@@ -204,10 +215,10 @@ class ApiProvider {
     }
   }
 
-  Future updatePassword(Map data) async {
+  Future changePassword(Map data) async {
     try {
       final response = await _dio.post(
-        "/user/update-password",
+        "/user/change-password",
         data: data,
       );
       return response.data;

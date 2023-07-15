@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class DropdownOverlay<T> extends StatefulWidget {
   final VoidCallback? onWidgetTap;
   final bool enabled;
+  final bool readonly;
   final T? value;
   final List<T?> dataList;
   final double radius;
@@ -20,6 +21,7 @@ class DropdownOverlay<T> extends StatefulWidget {
     required this.dataList,
     this.radius = 8,
     this.enabled = true,
+    this.readonly = false,
     this.borderWidth = 1,
     this.bgColor = Colors.white,
     this.borderColor = Colors.grey,
@@ -128,7 +130,7 @@ class _DropdownOverlayState<T> extends State<DropdownOverlay<T>>
     return CompositedTransformTarget(
       link: _layerLink,
       child: GestureDetector(
-        onTapDown: widget.enabled ? (TapDownDetails tapDownDetails) {
+        onTapDown: widget.enabled && !widget.readonly ? (TapDownDetails tapDownDetails) {
           setState(() {
             _tapDownDetails = tapDownDetails;
           });

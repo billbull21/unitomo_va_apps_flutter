@@ -5,6 +5,7 @@ import '../../utils/dropdown_overlay.dart';
 class OutlinedDropdownComponent extends StatelessWidget {
 
   final bool enabled;
+  final bool readonly;
   final String label;
   final String? hint;
   final String keyName;
@@ -17,6 +18,7 @@ class OutlinedDropdownComponent extends StatelessWidget {
   const OutlinedDropdownComponent({
     Key? key,
     this.enabled = true,
+    this.readonly = false,
     this.label = "",
     this.hint,
     required this.keyName,
@@ -45,6 +47,7 @@ class OutlinedDropdownComponent extends StatelessWidget {
           value: selectedData,
           dataList: dataList,
           enabled: enabled,
+          readonly: readonly,
           onWidgetTap: onWidgetTap,
           itemBuilder: (ctxOver, data) {
             return ListTile(

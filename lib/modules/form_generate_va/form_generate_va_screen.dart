@@ -55,10 +55,9 @@ class _FormGenerateVaScreenState extends ConsumerState<FormGenerateVaScreen> {
     }
     if (mounted) LoadingDialog.hideLoadingDialog(context);
     if (errorMessage == null && mounted) {
-      ref.refresh(providerFetchAllVAHistory);
-      context.goNamed("/",
-        extra: "berhasil membuat nomor pembayaran baru!",
-      );
+      ref.invalidate(providerFetchAllVAHistory);
+      context.pop();
+      showSuccessFlushbar(context, "Yeayy!", "berhasil membuat nomor pembayaran baru!");
     } else {
       showErrorFlushbar(context, "Oops!", errorMessage ?? "");
     }

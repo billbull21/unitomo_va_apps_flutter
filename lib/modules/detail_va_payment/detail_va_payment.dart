@@ -59,8 +59,10 @@ class _DetailVaPaymentState extends ConsumerState<DetailVaPayment> {
     }
     if (mounted) LoadingDialog.hideLoadingDialog(context);
     if (errorMessage == null && mounted) {
-      ref.refresh(providerFetchAllVAHistory);
-      context.goNamed("/", extra: "Berhasil menghapus nomor VA");
+      ref.invalidate(providerFetchAllVAHistory);
+      context.pop();
+      showSuccessFlushbar(context, "Yeayy!", "Berhasil menghapus nomor VA");
+      // context.goNamed("/", extra: );
     } else {
       showErrorFlushbar(context, "Oops!", errorMessage ?? "");
     }

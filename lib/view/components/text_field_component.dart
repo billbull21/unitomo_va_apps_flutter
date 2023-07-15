@@ -86,11 +86,11 @@ class _TextFieldComponentState extends State<TextFieldComponent> {
           ),
         ],
         GestureDetector(
-          onTap: () {
+          onTap: !widget.readonly && widget.isEnabled ? () {
             if (!(_focusNode?.hasFocus ?? false)) {
               FocusScope.of(context).requestFocus(_focusNode);
             }
-          },
+          } : null,
           child: Container(
             padding: const EdgeInsets.symmetric(
               vertical: 6,

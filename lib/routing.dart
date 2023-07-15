@@ -8,6 +8,7 @@ import 'package:unitomo_va_payment/modules/detail_va_payment/detail_va_payment.d
 import 'package:unitomo_va_payment/modules/form_generate_va/form_generate_va_screen.dart';
 import 'package:unitomo_va_payment/modules/home/home_screen.dart';
 import 'package:unitomo_va_payment/modules/payment_code/payment_code_screen.dart';
+import 'package:unitomo_va_payment/modules/profile/profile_screen.dart';
 
 import 'environtment.dart';
 import 'modules/auth/reset_password/reset_password_screen.dart';
@@ -22,6 +23,7 @@ class AppRoute {
   static const paymentCodeRoute = "/payment-code";
   static const formGenerateVaRoute = "create-va";
   static const detailVaRoute = "detail-va";
+  static const userProfile = "profile";
 
 }
 
@@ -40,6 +42,11 @@ final router = GoRouter(
           path: AppRoute.formGenerateVaRoute,
           name: AppRoute.formGenerateVaRoute,
           builder: (context, state) => const FormGenerateVaScreen(),
+        ),
+        GoRoute(
+          path: AppRoute.userProfile,
+          name: AppRoute.userProfile,
+          builder: (context, state) => const ProfileScreen(),
         ),
         GoRoute(
           path: "${AppRoute.detailVaRoute}/:id",
