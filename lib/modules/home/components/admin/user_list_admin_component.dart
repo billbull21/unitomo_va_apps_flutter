@@ -145,20 +145,17 @@ class UserListAdminComponent extends ConsumerWidget {
                                       DataCell(Text("${el['nim'] ?? ''}")),
                                       DataCell(Text("${el['nama'] ?? ''}")),
                                       DataCell(Text("${el['prodi'] ?? ''}")),
-                                      DataCell(Text(rupiahNumberFormatter("${el['email'] ?? ''}"))),
+                                      DataCell(Text("${el['email'] ?? ''}")),
                                       DataCell(
                                         Row(
                                           children: [
                                             IconButton(
                                               onPressed: () {
-                                                context.goNamed(AppRoute.detailVaRoute,
-                                                  pathParameters: {
-                                                    'id': el['id'],
-                                                  },
-                                                );
+                                                // TODO :: CALL ENDPOINT TO DELETE/INACTIVE USER.
                                               },
-                                              icon: const Icon(Icons.remove_red_eye),
-                                            )
+                                              color: Colors.red,
+                                              icon: const Icon(Icons.delete),
+                                            ),
                                           ],
                                         ),
                                       ),
