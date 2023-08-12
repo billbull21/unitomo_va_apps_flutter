@@ -299,4 +299,15 @@ class ApiProvider {
     }
   }
 
+  Future deleteUser(String id) async {
+    try {
+      final response = await _dio.delete(
+        "/user/$id",
+      );
+      return response.data;
+    } catch (e) {
+      throw CustomException.catchError(e);
+    }
+  }
+
 }

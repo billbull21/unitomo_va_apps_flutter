@@ -54,7 +54,7 @@ class _AdminComponentState extends ConsumerState<AdminComponent> {
   @override
   Widget build(BuildContext context) {
     final widthScreen = MediaQuery.of(context).size.width;
-    return widthScreen > 500 ? Row(
+    return widthScreen > 800 ? Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _sideNav(),
@@ -89,14 +89,18 @@ class _AdminComponentState extends ConsumerState<AdminComponent> {
               color: Colors.white,
               child: ListView(
                 children: [
-                  for (int i=0;i<_listMenu.length;i++)
-                    ListTile(
-                      onTap: () {
-                        _currentIndex = i;
-                        setState(() {});
-                      },
-                      title: Text(_listMenu[i].title),
-                    ),
+                  if (isSideMenuOpen)
+                    for (int i=0;i<_listMenu.length;i++)
+                      ListTile(
+                        onTap: () {
+                          _currentIndex = i;
+                          setState(() {});
+                        },
+                        selected: _currentIndex == i,
+                        selectedColor: Colors.blue,
+                        selectedTileColor: Colors.grey.shade300,
+                        title: Text(_listMenu[i].title),
+                      ),
                 ],
               ),
             ),
