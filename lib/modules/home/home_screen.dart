@@ -7,20 +7,18 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:unitomo_va_payment/data/remote/api/api_provider.dart';
 import 'package:unitomo_va_payment/helpers/flushbar_helper.dart';
 import 'package:unitomo_va_payment/main.dart';
+import 'package:unitomo_va_payment/modules/home/components/admin_component.dart';
 import 'package:unitomo_va_payment/routing.dart';
-import 'package:unitomo_va_payment/view/components/empty_list_component.dart';
 import 'package:unitomo_va_payment/view/components/error_display_component.dart';
-import 'package:unitomo_va_payment/view/components/key_value_component.dart';
 import 'package:unitomo_va_payment/view/components/loading_display_component.dart';
 
 import '../../environtment.dart';
-import '../../helpers/common_helper.dart';
 import '../../models/user_model.dart';
 import '../../providers/user_provider.dart';
 import '../../utils/custom_exception.dart';
+import 'components/user_component.dart';
 
-final providerCheckUserStatus =
-    FutureProvider.autoDispose<UserModel?>((ref) async {
+final providerCheckUserStatus = FutureProvider.autoDispose<UserModel?>((ref) async {
   try {
     final cancelToken = CancelToken();
     // When the provider is destroyed, cancel the http request
@@ -29,7 +27,9 @@ final providerCheckUserStatus =
     // // check first before recalling api.
     // i want re-fetch every time this provider get called
     // if (usersProvider.state != null) return usersProvider.state;
-    final response = await ApiProvider().fetchUserData();
+    final response = await ApiProvider().fetchUserData(
+      cancelToken: cancelToken,
+    );
     // update into global state manager for user provider
     usersProvider.state = response;
 
@@ -46,13 +46,12 @@ final providerCheckUserStatus =
   }
 });
 
-final providerFetchAllVAHistory =
-    FutureProvider.autoDispose<List<Map>>((ref) async {
+final providerFetchDataUserByID = FutureProvider.autoDispose.family<UserModel?, String>((ref, id) async {
   try {
     final cancelToken = CancelToken();
     // When the provider is destroyed, cancel the http request
     ref.onDispose(() => cancelToken.cancel());
-    final response = await ApiProvider().fetchAllVAHistory(
+    final response = await ApiProvider().fetchUserDataByID(id,
       cancelToken: cancelToken,
     );
     return response;
@@ -64,6 +63,25 @@ final providerFetchAllVAHistory =
   }
 });
 
+final providerFetchVAHistory = FutureProvider.autoDispose<List<Map>>((ref) async {
+  try {
+    final cancelToken = CancelToken();
+    // When the provider is destroyed, cancel the http request
+    ref.onDispose(() => cancelToken.cancel());
+    final response = await ApiProvider().fetchListVAHistoryByUser(
+      cancelToken: cancelToken,
+    );
+    return List<Map>.from(response['data']);
+  } on CustomException catch (e) {
+    throw e.message;
+  } catch (e) {
+    if (kDebugMode) print("ERROR :: $e");
+    rethrow;
+  }
+});
+
+final providerIsSideMenuOpen = StateProvider((ref) => false);
+
 class HomeScreen extends ConsumerStatefulWidget {
 
   final String? messageExtra;
@@ -74,7 +92,9 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
+
+  late TextTheme textTheme;
 
   @override
   void initState() {
@@ -89,14 +109,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
-            Image.asset('assets/images/unitomo_logo.png',
-              width: 35,
-              height: 35,
+            Consumer(
+              builder: (_, ref1, __) {
+                final asyncFetchUser = ref1.watch(providerCheckUserStatus);
+                return asyncFetchUser.whenOrNull(
+                  data: (data) {
+                    if (data?.isAdmin ?? false) {
+                      return IconButton.outlined(
+                        onPressed: () {
+                          final currState = ref.read(providerIsSideMenuOpen);
+                          ref.read(providerIsSideMenuOpen.notifier).state = !currState;
+                        },
+                        style: IconButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        icon: const Icon(Icons.menu),
+                      );
+                    }
+                    return Image.asset('assets/images/unitomo_logo.png',
+                      width: 35,
+                      height: 35,
+                    );
+                  }
+                ) ?? Image.asset('assets/images/unitomo_logo.png',
+                  width: 35,
+                  height: 35,
+                );
+              },
             ),
             Expanded(
               child: Text("FAKULTAS TEKNIK",
@@ -119,140 +165,146 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
       body: Center(
-        child: Container(
-          constraints: const BoxConstraints(
-            maxWidth: 400,
-          ),
-          child: Consumer(
-            builder: (_, ref1, __) {
-              final asyncFetchUser = ref1.watch(providerCheckUserStatus);
-              return asyncFetchUser.when(
-                skipLoadingOnRefresh: false,
-                data: (dataUser) {
-                  final asyncFetchAllVAHistory = ref1.watch(providerFetchAllVAHistory);
-                  return Column(
-                    children: [
-                      Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        color: Colors.yellow,
-                        elevation: 5,
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(8),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Hi, ${dataUser?.nama}",
-                                      style: textTheme.headlineMedium,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text("${dataUser?.prodi}",
-                                      style: textTheme.bodyMedium,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              IconButton.outlined(
-                                onPressed: () {
-                                  context.goNamed(AppRoute.userProfile);
-                                },
-                                color: Colors.blue,
-                                tooltip: "Profile",
-                                icon: const Icon(Icons.account_circle),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: asyncFetchAllVAHistory.when(
-                          skipLoadingOnRefresh: false,
-                          data: (data) {
-                            return RefreshIndicator(
-                              onRefresh: () async {
-                                return ref.invalidate(providerFetchAllVAHistory);
-                              },
-                              child: Stack(
-                                children: [
-                                  if (data.isEmpty) const EmptyListComponent(),
-                                  Positioned.fill(
-                                    child: ListView.builder(
-                                      padding: const EdgeInsets.all(16.0),
-                                      physics: const AlwaysScrollableScrollPhysics(),
-                                      itemCount: data.length,
-                                      itemBuilder: (ctx, i) {
-                                        return Card(
-                                          color: "${data[i]['status'] ?? ''}".isEmpty ? Colors.red.shade100 : null,
-                                          child: InkWell(
-                                            onTap: () async {
-                                              context.goNamed(AppRoute.detailVaRoute,
-                                                pathParameters: {
-                                                  'id': data[i]['id'],
-                                                },
-                                              );
-                                            },
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Column(
-                                                children: [
-                                                  KeyValueComponent(
-                                                    keyString: "VA",
-                                                    value: "${data[i]['va']}",
-                                                  ),
-                                                  KeyValueComponent(
-                                                    keyString: "Kategori",
-                                                    value: "${data[i]['payment_category']}",
-                                                  ),
-                                                  KeyValueComponent(
-                                                    keyString: "Nominal",
-                                                    value: rupiahNumberFormatter("${data[i]['nominal']}"),
-                                                    noMargin: true,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          error: (error, st) => ErrorDisplayComponent(
-                            onPressed: () => ref.invalidate(providerFetchAllVAHistory),
-                            errorMsg: "$error",
-                          ),
-                          loading: () => const LoadingDisplayComponent(),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-                error: (error, st) => ErrorDisplayComponent(
-                  onPressed: () => ref.invalidate(providerCheckUserStatus),
-                  errorMsg: "$error",
-                ),
-                loading: () => const LoadingDisplayComponent(),
-              );
-            },
-          ),
+        child: Consumer(
+          builder: (_, ref1, __) {
+            final asyncFetchUser = ref1.watch(providerCheckUserStatus);
+            return asyncFetchUser.when(
+              skipLoadingOnRefresh: false,
+              data: (dataUser) {
+                if (dataUser?.isAdmin ?? false) {
+                  return AdminComponent(dataUser);
+                } else {
+                  return UserComponent(dataUser);
+                }
+              },
+              error: (error, st) => ErrorDisplayComponent(
+                onPressed: () => ref.invalidate(providerCheckUserStatus),
+                errorMsg: "$error",
+              ),
+              loading: () => const LoadingDisplayComponent(),
+            );
+          },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () async {
-          context.goNamed(AppRoute.formGenerateVaRoute);
+      floatingActionButton: Consumer(
+        builder: (_, ref1, __) {
+          final asyncFetchUser = ref1.watch(providerCheckUserStatus);
+          return asyncFetchUser.whenOrNull(
+            data: (data) {
+              if (!(data?.isAdmin ?? false)) {
+                return FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  onPressed: () async {
+                    context.goNamed(AppRoute.formGenerateVaRoute);
+                  },
+                );
+              }
+              return null;
+            },
+          ) ?? const SizedBox.shrink();
         },
       ),
     );
   }
+
+  // Widget isAdmin(BuildContext context, WidgetRef ref) {
+  //   return Column(
+  //     children: [
+  //       Row(
+  //         children: [
+  //           Expanded(
+  //             child: OutlinedButton(
+  //               onPressed: () => setState(() {
+  //                 _menuType = 1;
+  //               }),
+  //               style: OutlinedButton.styleFrom(
+  //                 backgroundColor: _menuType == 1 ? Colors.blue.shade100 : null,
+  //               ),
+  //               child: const Text("VA History"),
+  //             ),
+  //           ),
+  //           const SizedBox(
+  //             width: 16,
+  //           ),
+  //           Expanded(
+  //             child: OutlinedButton(
+  //               onPressed: () => setState(() {
+  //                 _menuType = 2;
+  //               }),
+  //               style: OutlinedButton.styleFrom(
+  //                 backgroundColor: _menuType == 2 ? Colors.blue.shade100 : null,
+  //               ),
+  //               child: const Text("Daftar User"),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       Expanded(
+  //         child: _menuType == 1 ? _historyVA(ref, true) : _listUser(ref),
+  //       ),
+  //     ],
+  //   );
+  // }
+  //
+  // Widget _listUser(WidgetRef ref) {
+  //   final asyncFetchAllUsers = ref.watch(providerFetchAllUsers);
+  //   return asyncFetchAllUsers.when(
+  //     skipLoadingOnRefresh: false,
+  //     data: (data) {
+  //       return RefreshIndicator(
+  //         onRefresh: () async {
+  //           return ref.invalidate(providerFetchAllUsers);
+  //         },
+  //         child: Stack(
+  //           children: [
+  //             if (data.isEmpty) const EmptyListComponent(),
+  //             Positioned.fill(
+  //               child: ListView.builder(
+  //                 padding: const EdgeInsets.all(16.0),
+  //                 physics: const AlwaysScrollableScrollPhysics(),
+  //                 itemCount: data.length,
+  //                 itemBuilder: (ctx, i) {
+  //                   return Card(
+  //                     child: InkWell(
+  //                       onTap: () async {
+  //
+  //                       },
+  //                       child: Padding(
+  //                         padding: const EdgeInsets.all(8.0),
+  //                         child: Column(
+  //                           children: [
+  //                             KeyValueComponent(
+  //                               keyString: "NIM",
+  //                               value: "${data[i]['nim']}",
+  //                             ),
+  //                             KeyValueComponent(
+  //                               keyString: "Nama",
+  //                               value: "${data[i]['nama']}",
+  //                             ),
+  //                             KeyValueComponent(
+  //                               keyString: "Prodi",
+  //                               value: "${data[i]['namaprodi']}",
+  //                               noMargin: true,
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //     error: (error, st) => ErrorDisplayComponent(
+  //       onPressed: () => ref.invalidate(providerFetchAllUsers),
+  //       errorMsg: "$error",
+  //     ),
+  //     loading: () => const LoadingDisplayComponent(),
+  //   );
+  // }
+  //
+
 }

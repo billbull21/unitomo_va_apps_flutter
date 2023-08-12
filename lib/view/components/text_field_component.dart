@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -17,9 +19,11 @@ class TextFieldComponent extends StatefulWidget {
   final bool isPercentage;
   final bool isTextArea;
   final bool obscureText;
+  final bool isDelayed;
   final EdgeInsets? margin;
   final Widget? suffixWidget;
   final TextAlign textAlign;
+  final double? height;
   final List<TextInputFormatter> inputFormatters;
 
   // final Function onEditingComplete;
@@ -46,8 +50,10 @@ class TextFieldComponent extends StatefulWidget {
     this.margin,
     this.showError = true,
     this.error = "",
+    this.height,
     this.textAlign = TextAlign.start,
     this.inputFormatters = const [],
+    this.isDelayed = false,
   }) : super(key: key);
 
   @override
@@ -57,6 +63,8 @@ class TextFieldComponent extends StatefulWidget {
 class _TextFieldComponentState extends State<TextFieldComponent> {
 
   FocusNode? _focusNode;
+  // delayed textfield onchange
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -64,10 +72,24 @@ class _TextFieldComponentState extends State<TextFieldComponent> {
     _focusNode = widget.focusNode ?? FocusNode();
   }
 
+  void _onTextChanged(String value) {
+    if (_debounceTimer != null && (_debounceTimer?.isActive ?? false)) {
+      _debounceTimer?.cancel();
+    }
+
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      if (widget.onChanged != null) {
+        widget.onChanged!(value);
+      }
+    });
+  }
+
   @override
   void dispose() {
+    if (_debounceTimer != null && (_debounceTimer?.isActive ?? false)) {
+      _debounceTimer?.cancel();
+    }
     if (widget.focusNode == null) _focusNode?.dispose();
-    // widget.controller?.dispose();
     super.dispose();
   }
 
@@ -103,7 +125,7 @@ class _TextFieldComponentState extends State<TextFieldComponent> {
               ),
               borderRadius: BorderRadius.circular(8),
             ),
-            height: widget.isTextArea ? null : 55,
+            height: widget.isTextArea ? null : widget.height ?? 55,
             alignment: Alignment.center,
             child: Row(
               children: [
@@ -151,7 +173,7 @@ class _TextFieldComponentState extends State<TextFieldComponent> {
                           if (widget.onChanged != null) widget.onChanged!(val);
                         }
                       } else {
-                        if (widget.onChanged != null) widget.onChanged!(val);
+                        if (widget.onChanged != null) widget.isDelayed ? _onTextChanged : widget.onChanged!(val);
                       }
                     },
                     keyboardType: widget.isTextArea

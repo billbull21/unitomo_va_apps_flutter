@@ -171,6 +171,17 @@ class ApiProvider {
     }
   }
 
+  Future<UserModel> fetchUserDataByID(String id, {CancelToken? cancelToken}) async {
+    try {
+      final response = await _dio.get("/user/data/$id",
+        cancelToken: cancelToken,
+      );
+      return UserModel.fromJson(response.data['data']);
+    } catch (e) {
+      throw CustomException.catchError(e);
+    }
+  }
+
   Future<Map> verificationRegister(String otp, {CancelToken? cancelToken}) async {
     try {
       final response = await _dio.get("/user/verification/$otp",
@@ -227,12 +238,51 @@ class ApiProvider {
     }
   }
 
-  Future<List<Map>> fetchAllVAHistory({CancelToken? cancelToken}) async {
+  Future<Map> fetchAllUsers({
+    int page = 1,
+    int limit = 100,
+    String search = '',
+    CancelToken? cancelToken
+  }) async {
     try {
-      final response = await _dio.get("/va",
+      final response = await _dio.get("/user?search=$search&page=$page&limit=$limit",
         cancelToken: cancelToken,
       );
-      return List<Map>.from(response.data['data']);
+      return response.data;
+    } catch (e) {
+      throw CustomException.catchError(e);
+    }
+  }
+
+  Future<Map> fetchAllVAHistory({
+    int page = 1,
+    int limit = 100,
+    String search = '',
+    CancelToken? cancelToken,
+  }) async {
+    String url = "/all-va?search=$search&page=$page&limit=$limit";
+    try {
+      final response = await _dio.get(url,
+        cancelToken: cancelToken,
+      );
+      return response.data;
+    } catch (e) {
+      throw CustomException.catchError(e);
+    }
+  }
+
+  Future<Map> fetchListVAHistoryByUser({
+    int page = 1,
+    int limit = 100,
+    String search = '',
+    CancelToken? cancelToken,
+  }) async {
+    String url = "/va?search=$search&page=$page&limit=$limit";
+    try {
+      final response = await _dio.get(url,
+        cancelToken: cancelToken,
+      );
+      return response.data;
     } catch (e) {
       throw CustomException.catchError(e);
     }

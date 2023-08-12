@@ -6,6 +6,7 @@
 /// email : "oemampedia@gmail.com"
 /// no_hp : "081231008968"
 /// status : 1
+/// isAdmin : true
 
 class UserModel {
   UserModel({
@@ -17,6 +18,7 @@ class UserModel {
     String? email,
     String? noHp,
     num? status,
+    bool? isAdmin,
   }) {
     _id = id;
     _nama = nama;
@@ -26,6 +28,7 @@ class UserModel {
     _email = email;
     _noHp = noHp;
     _status = status;
+    _isAdmin = isAdmin;
   }
 
   UserModel.fromJson(dynamic json) {
@@ -37,6 +40,7 @@ class UserModel {
     _email = json['email'];
     _noHp = json['no_hp'];
     _status = json['status'];
+    _isAdmin = json['isAdmin'];
   }
 
   String? _id;
@@ -47,6 +51,7 @@ class UserModel {
   String? _email;
   String? _noHp;
   num? _status;
+  bool? _isAdmin;
 
   UserModel copyWith({
     String? id,
@@ -57,6 +62,7 @@ class UserModel {
     String? email,
     String? noHp,
     num? status,
+    bool? isAdmin,
   }) =>
       UserModel(
         id: id ?? _id,
@@ -67,6 +73,7 @@ class UserModel {
         email: email ?? _email,
         noHp: noHp ?? _noHp,
         status: status ?? _status,
+        isAdmin: isAdmin ?? _isAdmin,
       );
 
   String? get id => _id;
@@ -85,6 +92,8 @@ class UserModel {
 
   num? get status => _status;
 
+  bool? get isAdmin => _isAdmin;
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = _id;
@@ -95,6 +104,7 @@ class UserModel {
     map['email'] = _email;
     map['no_hp'] = _noHp;
     map['status'] = _status;
+    map['isAdmin'] = _isAdmin;
     return map;
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:unitomo_va_payment/modules/home/providers/va_history_provider.dart';
 
 import '../../data/remote/api/api_provider.dart';
 import '../../helpers/common_helper.dart';
@@ -59,7 +60,8 @@ class _DetailVaPaymentState extends ConsumerState<DetailVaPayment> {
     }
     if (mounted) LoadingDialog.hideLoadingDialog(context);
     if (errorMessage == null && mounted) {
-      ref.invalidate(providerFetchAllVAHistory);
+      ref.invalidate(providerFetchVAHistory);
+      ref.invalidate(vaHistoryPaginationProvider);
       context.pop();
       showSuccessFlushbar(context, "Yeayy!", "Berhasil menghapus nomor VA");
       // context.goNamed("/", extra: );
@@ -136,6 +138,12 @@ class _DetailVaPaymentState extends ConsumerState<DetailVaPayment> {
                     ),
                     const Divider(),
                     KeyValueComponent(
+                      keyString: "Nama",
+                      value: "${data['va_name']}",
+                      noMargin: true,
+                    ),
+                    const Divider(),
+                    KeyValueComponent(
                       keyString: "Kategori",
                       value: "${data['payment_category']}",
                       noMargin: true,
@@ -148,7 +156,7 @@ class _DetailVaPaymentState extends ConsumerState<DetailVaPayment> {
                     ),
                     const Divider(),
                     KeyValueComponent(
-                      keyString: "Due Date",
+                      keyString: "Masa Berlaku",
                       value: dateFormat("${data['expired_date']}"),
                       noMargin: true,
                     ),
@@ -160,7 +168,7 @@ class _DetailVaPaymentState extends ConsumerState<DetailVaPayment> {
                     ),
                     const Divider(),
                     KeyValueComponent(
-                      keyString: "Created At",
+                      keyString: "Tanggal Dibuat",
                       value: dateFormat("${data['created_at']}"),
                       noMargin: true,
                     ),
@@ -170,7 +178,7 @@ class _DetailVaPaymentState extends ConsumerState<DetailVaPayment> {
                         final clipboardData = ClipboardData(text: "${data['va']}");
                         Clipboard.setData(clipboardData);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('No. VA copied to clipboard')),
+                          const SnackBar(content: Text('No. VA berhasil di copy')),
                         );
                       },
                       icon: const Icon(Icons.copy),

@@ -38,6 +38,7 @@ dependencies:
   go_router: ^8.0.5
   another_flushbar: ^1.12.30
   universal_html: ^2.2.3
+  flutter_hooks: ^0.20.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

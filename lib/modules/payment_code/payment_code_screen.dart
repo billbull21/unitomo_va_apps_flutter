@@ -6,6 +6,7 @@ import 'package:unitomo_va_payment/view/components/error_display_component.dart'
 import 'package:unitomo_va_payment/view/components/loading_display_component.dart';
 
 import '../../data/remote/api/api_provider.dart';
+import '../../providers/user_provider.dart';
 import '../../utils/custom_exception.dart';
 import '../../view/components/empty_list_component.dart';
 
@@ -14,6 +15,8 @@ final providerFetchAllPaymentCode = FutureProvider.autoDispose<List<Map>>((ref) 
     final cancelToken = CancelToken();
     // When the provider is destroyed, cancel the http request
     ref.onDispose(() => cancelToken.cancel());
+
+    ref.watch(providerUser);
 
     final response = await ApiProvider().fetchAllPaymentCode(
       cancelToken: cancelToken,
