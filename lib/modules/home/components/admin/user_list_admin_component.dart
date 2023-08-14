@@ -177,7 +177,7 @@ class _UserListAdminComponentState extends ConsumerState<UserListAdminComponent>
                                         cells: <DataCell>[
                                           DataCell(Text("${el['nim'] ?? ''}")),
                                           DataCell(Text("${el['nama'] ?? ''}")),
-                                          DataCell(Text("${el['prodi'] ?? ''}")),
+                                          DataCell(Text("${el['namaprodi'] ?? ''}")),
                                           DataCell(Text("${el['email'] ?? ''}")),
                                           DataCell(
                                             Row(
