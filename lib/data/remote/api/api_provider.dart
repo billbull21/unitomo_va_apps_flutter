@@ -13,7 +13,7 @@ class ApiProvider {
   static final ApiProvider _apiProvider = ApiProvider._internal();
 
   factory ApiProvider(
-      {String baseUrl = "http://36.64.152.75:5000/v1", Map<String, dynamic>? headers}) {
+      {String baseUrl = "https://backendva.ftunitomo.web.id/v1", Map<String, dynamic>? headers}) {
     _apiProvider._dio = Dio();
     _apiProvider._dio.interceptors.clear();
     _apiProvider._dio.interceptors.add(InterceptorsWrapper(onRequest:
