@@ -204,7 +204,7 @@ class _FormGenerateVaScreenState extends ConsumerState<FormGenerateVaScreen> {
                   if (userModel?.isAdmin ?? false) {
                     nim = _nimTextController.text;
                   }
-                  String editedNim = nim.length > 4 ? "${nim.substring(2, 4)}${nim.substring(6)}" : nim;
+                  String editedNim = nim.length > 4 ? nim.substring(2) : nim;
                   final result = await context.pushNamed(
                     AppRoute.paymentCodeRoute,
                   );
