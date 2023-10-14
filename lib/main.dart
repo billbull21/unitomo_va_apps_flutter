@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Flutter Demo',
+      title: 'VA FT',
       theme: ThemeData(
         textTheme: const TextTheme().copyWith(
           // bodyLarge: const TextTheme().bodyLarge?.copyWith(

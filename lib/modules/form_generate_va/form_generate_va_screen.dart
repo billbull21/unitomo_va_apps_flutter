@@ -33,7 +33,7 @@ class _FormGenerateVaScreenState extends ConsumerState<FormGenerateVaScreen> {
   String? va;
   bool isAdmin = false;
   Map? paymentData;
-  String defaultPrefixVATeknik = "10096";
+  String defaultPrefixVATeknik = "11111";
   bool _isErrorMode = false;
 
   @override
@@ -175,7 +175,7 @@ class _FormGenerateVaScreenState extends ConsumerState<FormGenerateVaScreen> {
                 setState(() {
                   if (paymentData != null) {
                     String nim = _nimTextController.text;
-                    String editedNim = nim.length > 4 ? "${nim.substring(2, 4)}${nim.substring(6)}" : nim;
+                    String editedNim = nim.length > 4 ? nim.substring(2) : nim;
                     va = "$defaultPrefixVATeknik${paymentData!['kode']}$editedNim";
                     setState(() {});
                   }
